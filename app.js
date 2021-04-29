@@ -3,6 +3,8 @@ const express = require('express')
 const MongoClient = require('mongodb').MongoClient
 const { Db } = require('mongodb')
 const CryptoJS = require('crypto-js')
+const bodyParser = require('body-parser');
+const cors = require('cors');
 
 // Server instance
 const app = express()
@@ -12,6 +14,11 @@ const port = process.env.PORT || 5000
 const mongoURL = 'mongodb+srv://admin:admin@cluster0.hub2f.mongodb.net/?retryWrites=true&w=majority'
 const mongoDB = 'Applergens'
 
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }))
+app.use(cors());
+
+// ENDPOINTS START
 app.get('/', (req, res) => {
   res.send('API working successful!')
 })

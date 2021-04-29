@@ -17,7 +17,12 @@
   },
   "homepage": "https://github.com/Applergens/API#readme",
   "dependencies": {
+<<<<<<< HEAD
     "crypto-js": "^4.0.0",
+=======
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+>>>>>>> 910f580ea9fda774599c70f08c8bbdfd7fc9b26a
     "ejs": "^3.1.6",
     "express": "^4.17.1",
     "mongoclient": "^1.0.3",
