@@ -107,7 +107,35 @@ app.post('/register', (req, res) => {
 
 });
 
+app.get('/restaurants/getByCode', (req, res) => {
 
+  resCode = req.query.code
+
+  MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
+
+    if (err) throw err
+
+    const db = client.db(mongoDB)
+
+    db.collection('Restaurants').findOne({code:resCode},{projection:{_id: 0, password:0}}, function(err, restaurant) {
+
+      if (err) throw err
+  
+      if (restaurant != null) {
+  
+        res.send(restaurant)
+  
+      } else {
+
+        res.send("There is no restaurant with this code")
+  
+      }
+  
+    });
+
+  });
+
+});
 
 app.listen(port, () => {
 
