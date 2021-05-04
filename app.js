@@ -34,7 +34,9 @@ app.get('/', (req, res) => {
 
 })
 
-app.post('/login', (req, res) => {
+// LOGIN USER
+
+app.post('/login/user', (req, res) => {
 
   userData = req.body.user
   userData.password = CryptoJS.SHA256(userData.password).toString(CryptoJS.enc.Hex)
@@ -67,7 +69,9 @@ app.post('/login', (req, res) => {
 
 });
 
-app.post('/register', (req, res) => {
+// REGISTER USER
+
+app.post('/register/user', (req, res) => {
 
   userData = req.body.user
 
@@ -107,6 +111,10 @@ app.post('/register', (req, res) => {
 
 });
 
+// CRUD RESTAURANTS
+
+// Get by code
+
 app.get('/restaurants/getByCode', (req, res) => {
 
   resCode = req.query.code
@@ -117,7 +125,7 @@ app.get('/restaurants/getByCode', (req, res) => {
 
     const db = client.db(mongoDB)
 
-    db.collection('Restaurants').findOne({code:resCode},{projection:{_id: 0, password:0}}, function(err, restaurant) {
+    db.collection('Restaurants').findOne({code:resCode},{projection:{password:0}}, function(err, restaurant) {
 
       if (err) throw err
   
@@ -127,7 +135,7 @@ app.get('/restaurants/getByCode', (req, res) => {
   
       } else {
 
-        res.send("There is no restaurant with this code")
+        res.send("There is no restaurant with that code")
   
       }
   
