@@ -34,7 +34,9 @@ app.get('/', (req, res) => {
 
 })
 
-// LOGIN USER
+// LOGIN
+
+// Login - User
 
 app.post('/login/user', (req, res) => {
 
@@ -69,7 +71,44 @@ app.post('/login/user', (req, res) => {
 
 });
 
+// Login - Restaurant
+
+app.post('/login/restaurant', (req, res) => {
+
+  restaurantData = req.body.restaurant
+  restaurantData.password = CryptoJS.SHA256(restaurantData.password).toString(CryptoJS.enc.Hex)
+
+  MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
+
+    if (err) throw err
+
+    const db = client.db(mongoDB)
+
+    db.collection('Restaurants').findOne({code: restaurantData.code, password: restaurantData.password}, function(err, restaurant) {
+
+      if (err) throw err
+
+      if (restaurant != null) {
+
+          res.send(restaurant)
+
+      } else {
+
+          res.send('Invalid credentials')
+
+      }
+
+      client.close()
+
+    });
+
+  });
+
+});
+
 // REGISTER USER
+
+// Register - User
 
 app.post('/register/user', (req, res) => {
 
