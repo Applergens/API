@@ -150,6 +150,38 @@ app.post('/register/user', (req, res) => {
 
 });
 
+// CRUD USERS
+
+// GetByEmail
+app.get('/users/getByEmail', (req, res) => {
+  resEmail = req.query.email
+
+  MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
+
+    if (err) throw err
+
+    const db = client.db(mongoDB)
+
+    db.collection('Users').findOne({email:resEmail},{projection:{password:0, dni:0}}, function(err, user) {
+
+      if (err) throw err
+
+      if (user != null) {
+
+        res.send(user)
+
+      } else {
+
+        res.send("User not found")
+
+      }
+
+    });
+
+  });
+  
+});
+
 // CRUD RESTAURANTS
 
 // Get by code
