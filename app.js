@@ -55,11 +55,11 @@ app.post('/login/user', (req, res) => {
 
       if (user != null) {
 
-          res.send(user)
+        res.status(200).send(restaurant)
 
       } else {
 
-          res.send('Invalid credentials')
+        res.status(400).send('Invalid credentials')
 
       }
 
@@ -90,11 +90,11 @@ app.post('/login/restaurant', (req, res) => {
 
       if (restaurant != null) {
 
-          res.send(restaurant)
+        res.status(200).send(restaurant)
 
       } else {
 
-          res.send('Invalid credentials')
+        res.status(400).send('Invalid credentials')
 
       }
 
@@ -126,7 +126,7 @@ app.post('/register/user', (req, res) => {
 
       if (user != null) {
 
-        res.send('There is an user registered already')
+        res.status(400).send('There is an user registered already')
 
       } else {
 
@@ -135,8 +135,8 @@ app.post('/register/user', (req, res) => {
         db.collection('Users').insertOne(userData, function(err) {
   
           if (err) throw err
-  
-          res.send('User registered successfully')
+          
+          res.status(200).send('User registered successfully')
   
           client.close()
   
@@ -153,8 +153,10 @@ app.post('/register/user', (req, res) => {
 // CRUD USERS
 
 // GetByEmail
+
 app.get('/users/getByEmail', (req, res) => {
-  resEmail = req.query.email
+
+  userEmail = req.query.email
 
   MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
 
@@ -162,17 +164,17 @@ app.get('/users/getByEmail', (req, res) => {
 
     const db = client.db(mongoDB)
 
-    db.collection('Users').findOne({email:resEmail},{projection:{password:0, dni:0}}, function(err, user) {
+    db.collection('Users').findOne({email: userEmail},{projection:{password:0, dni:0}}, function(err, user) {
 
       if (err) throw err
 
       if (user != null) {
 
-        res.send(user)
+        res.status(200).send(user)
 
       } else {
 
-        res.send("User not found")
+        res.status(404).send('User not found')
 
       }
 
@@ -188,7 +190,7 @@ app.get('/users/getByEmail', (req, res) => {
 
 app.get('/restaurants/getByCode', (req, res) => {
 
-  resCode = req.query.code
+  restaurantCode = req.query.code
 
   MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
 
@@ -196,17 +198,17 @@ app.get('/restaurants/getByCode', (req, res) => {
 
     const db = client.db(mongoDB)
 
-    db.collection('Restaurants').findOne({code:resCode},{projection:{password:0}}, function(err, restaurant) {
+    db.collection('Restaurants').findOne({code: restaurantCode},{projection:{password:0}}, function(err, restaurant) {
 
       if (err) throw err
   
       if (restaurant != null) {
   
-        res.send(restaurant)
+        res.status(200).send(restaurant)
   
       } else {
 
-        res.send("There is no restaurant with that code")
+        res.status(404).send("There is no restaurant with that code")
   
       }
   
