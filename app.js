@@ -84,7 +84,7 @@ app.post('/login/restaurant', (req, res) => {
 
     const db = client.db(mongoDB)
 
-    db.collection('Restaurants').findOne({code: restaurantData.code, password: restaurantData.password}, function(err, restaurant) {
+    db.collection('Restaurants').findOne({code: restaurantData.code, password: restaurantData.password} , {projection:{_id:0}}, function(err, restaurant) {
 
       if (err) throw err
 
