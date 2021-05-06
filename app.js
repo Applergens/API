@@ -7,7 +7,7 @@ const bodyParser = require('body-parser')
 const cors = require('cors');
 
 // Server instance
-const app = express()
+const app = express();
 
 // Global variables
 const port = process.env.PORT || 5000
@@ -55,7 +55,7 @@ app.post('/login/user', (req, res) => {
 
       if (user != null) {
 
-        res.status(200).send(restaurant)
+        res.status(200).send(user)
 
       } else {
 
