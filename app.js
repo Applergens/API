@@ -4,28 +4,29 @@ const { Db } = require('mongodb')
 const MongoClient = require('mongodb').MongoClient
 const CryptoJS = require('crypto-js')
 const bodyParser = require('body-parser')
-const cors = require('cors');
+const cors = require('cors')
 
 // Server instance
-const app = express();
+const app = express()
 
 // Global variables
 const port = process.env.PORT || 5000
 const mongoURL = 'mongodb+srv://admin:admin@cluster0.hub2f.mongodb.net/?retryWrites=true&w=majority'
 const mongoDB = 'Applergens'
 
-app.use(bodyParser.json());
+app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cors())
 
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, access-token, Access-Control-Allow-Origin');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
-  res.header('Allow', 'GET, POST, OPTIONS, PUT, DELETE');
-  next();
-});
 
+  res.header('Access-Control-Allow-Origin', '*')
+  res.header('Access-Control-Allow-Headers', 'Content-Type, access-token, Access-Control-Allow-Origin')
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE')
+  res.header('Allow', 'GET, POST, OPTIONS, PUT, DELETE')
+  next()
+
+});
 
 // ENDPOINTS START
 app.get('/', (req, res) => {
@@ -145,6 +146,40 @@ app.post('/register/user', (req, res) => {
       }
 
     });  
+
+  });
+
+});
+
+// Register - Restaurant
+
+app.post('/register/restaurant', (req, res) => {
+
+  restaurantData = req.body.restaurant
+
+  MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
+
+    if (err) throw err
+
+    const db = client.db(mongoDB)
+
+    db.collection('Restaurants').find().toArray(function(err, rest) {
+
+      if (err) throw err
+
+      restaurantData.code = rest[rest.length-1].code + 1
+
+    });
+
+    db.collection('Restaurants').insertOne(restaurantData, function(err) {
+  
+      if (err) throw err
+          
+      res.status(200).send('Restaurant registered successfully')
+  
+      client.close()
+  
+    });
 
   });
 
