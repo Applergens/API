@@ -2,6 +2,7 @@
 const express = require('express')
 const { Db } = require('mongodb')
 const MongoClient = require('mongodb').MongoClient
+const ObjectId = require("mongodb").ObjectID;
 const CryptoJS = require('crypto-js')
 const bodyParser = require('body-parser')
 const cors = require('cors')
@@ -85,7 +86,7 @@ app.post('/login/restaurant', (req, res) => {
 
     const db = client.db(mongoDB)
 
-    db.collection('Restaurants').findOne({code: restaurantData.code, password: restaurantData.password} , {projection:{_id:0}}, function(err, restaurant) {
+    db.collection('Restaurants').findOne({code: restaurantData.code, password: restaurantData.password} , function(err, restaurant) {
 
       if (err) throw err
 
@@ -253,8 +254,44 @@ app.get('/restaurants/getByCode', (req, res) => {
 
 });
 
+// CRUD INGREDIENTS
+
+// Get by ID
+
+app.get('/ingredients/getById', (req, res) => {
+
+  ingredientCode = req.query.id
+
+  MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
+
+    if (err) throw err
+
+    const db = client.db(mongoDB)
+
+    db.collection('Ingredients').findOne({_id: ObjectId(ingredientCode)}, function(err, ingredient) {
+
+      if (err) throw err
+  
+      if (ingredient != null) {
+  
+        res.status(200).send(ingredient)
+  
+      } else {
+
+        res.status(404).send("There is no ingredient with that ID")
+  
+      }
+  
+    });
+
+  });
+
+});
+
 app.listen(port, () => {
 
   console.log(`API listening at http://localhost:${port}`)
 
 });
+
+
