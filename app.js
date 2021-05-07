@@ -233,7 +233,7 @@ app.get('/restaurants/getByCode', (req, res) => {
 
     const db = client.db(mongoDB)
 
-    db.collection('Restaurants').findOne({code: restaurantCode},{projection:{password:0}}, function(err, restaurant) {
+    db.collection('Restaurants').findOne({code: parseInt(restaurantCode, 10)},{projection:{password:0}}, function(err, restaurant) {
 
       if (err) throw err
   
