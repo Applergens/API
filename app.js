@@ -288,6 +288,37 @@ app.get('/ingredients/getById', (req, res) => {
 
 });
 
+// CRUD Allergens
+
+// GetAll 
+
+app.get('/allergens/getAll', (req, res) => {
+
+  MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
+
+    if (err) throw err
+
+    const db = client.db(mongoDB)
+
+    db.collection('Allergens').find({}).toArray((err, allergens) => {
+
+      if (err) throw err
+  
+      if (allergens != null) {
+  
+        res.status(200).send(allergens)
+  
+      } else {
+
+        res.status(404).send("Collection allergens is empty!")
+  
+      }
+    });
+
+  });
+
+});
+
 app.listen(port, () => {
 
   console.log(`API listening at http://localhost:${port}`)
