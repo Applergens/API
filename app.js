@@ -256,11 +256,9 @@ app.get('/restaurants/getByCode', (req, res) => {
 
 // CRUD INGREDIENTS
 
-// Get by ID
+// GetAll 
 
-app.get('/ingredients/getById', (req, res) => {
-
-  ingredientCode = req.query.id
+app.get('/ingredients/getAll', (req, res) => {
 
   MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
 
@@ -268,7 +266,38 @@ app.get('/ingredients/getById', (req, res) => {
 
     const db = client.db(mongoDB)
 
-    db.collection('Ingredients').findOne({_id: ObjectId(ingredientCode)}, function(err, ingredient) {
+    db.collection('Ingredients').find().toArray((err, ingredients) => {
+
+      if (err) throw err
+  
+      if (ingredients != null) {
+  
+        res.status(200).send(ingredients)
+  
+      } else {
+
+        res.status(404).send("Collection ingredients is empty!")
+  
+      }
+    });
+
+  });
+
+});
+
+// Get by ID
+
+app.get('/ingredients/getById', (req, res) => {
+
+  ingredientId = ObjectId(req.query.id)
+
+  MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
+
+    if (err) throw err
+
+    const db = client.db(mongoDB)
+
+    db.collection('Ingredients').findOne({_id: ingredientId}, function(err, ingredient) {
 
       if (err) throw err
   
@@ -313,6 +342,38 @@ app.get('/allergens/getAll', (req, res) => {
         res.status(404).send("Collection allergens is empty!")
   
       }
+    });
+
+  });
+
+});
+
+// Get by ID
+
+app.get('/allergens/getById', (req, res) => {
+
+  allergenId = ObjectId(req.query.id)
+
+  MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
+
+    if (err) throw err
+
+    const db = client.db(mongoDB)
+
+    db.collection('Allergens').findOne({_id: allergenId}, function(err, allergen) {
+
+      if (err) throw err
+  
+      if (allergen != null) {
+  
+        res.status(200).send(allergen)
+  
+      } else {
+
+        res.status(404).send("There is no allergen with that ID")
+  
+      }
+  
     });
 
   });
