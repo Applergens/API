@@ -305,6 +305,44 @@ app.get('/users/favourite', (req, res) => {
 
 // Get by code
 
+app.post('/restaurants/getById', (req, res) => {
+
+  restaurantIds = req.body.favourites
+
+  console.log(req.body)  
+
+  objectsIdList = []
+
+  for (i = 0; i < restaurantIds.length; i++) {
+
+    objectsIdList.push(ObjectId(restaurantIds[i]))
+    
+  }
+  
+  MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
+
+    if (err) throw err
+
+    const db = client.db(mongoDB)
+
+    db.collection('Restaurants').find({"_id" : {"$in" : objectsIdList}}).toArray(function(err, favourites) {
+
+      if (err) throw err
+
+      if (favourites != null) {
+
+        res.status(200).send(favourites)
+
+      }
+
+    });
+
+  });
+
+});
+
+// Get by code
+
 app.get('/restaurants/getByCode', (req, res) => {
 
   restaurantCode = req.query.code
@@ -337,11 +375,9 @@ app.get('/restaurants/getByCode', (req, res) => {
 
 // CRUD INGREDIENTS
 
-// Get by ID
+// GetAll 
 
-app.get('/ingredients/getById', (req, res) => {
-
-  ingredientCode = req.query.id
+app.get('/ingredients/getAll', (req, res) => {
 
   MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
 
@@ -349,7 +385,38 @@ app.get('/ingredients/getById', (req, res) => {
 
     const db = client.db(mongoDB)
 
-    db.collection('Ingredients').findOne({_id: ObjectId(ingredientCode)}, function(err, ingredient) {
+    db.collection('Ingredients').find().toArray((err, ingredients) => {
+
+      if (err) throw err
+  
+      if (ingredients != null) {
+  
+        res.status(200).send(ingredients)
+  
+      } else {
+
+        res.status(404).send("Collection ingredients is empty!")
+  
+      }
+    });
+
+  });
+
+});
+
+// Get by ID
+
+app.get('/ingredients/getById', (req, res) => {
+
+  ingredientId = ObjectId(req.query.id)
+
+  MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
+
+    if (err) throw err
+
+    const db = client.db(mongoDB)
+
+    db.collection('Ingredients').findOne({_id: ingredientId}, function(err, ingredient) {
 
       if (err) throw err
   
@@ -369,13 +436,19 @@ app.get('/ingredients/getById', (req, res) => {
 
 });
 
-
 // Get all by id list
-app.get('/ingredients/getByListId', (req, res) => {
+
+app.post('/ingredients/getByListId', (req, res) => {
 
   ingredientsId = req.body.ingredients
 
-  var resListId = [];
+  objectsIdList = []
+
+  for (i = 0; i < ingredientsId.length; i++) {
+
+    objectsIdList.push(ObjectId(ingredientsId[i]))
+    
+  }
 
   MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
 
@@ -383,27 +456,19 @@ app.get('/ingredients/getByListId', (req, res) => {
 
     const db = client.db(mongoDB)
 
-    ingredientsId.forEach(id => {
-
-      db.collection('Ingredients').findOne({_id: ObjectId(id)}, function(err, ingredient) {
+    db.collection('Ingredients').find({"_id" : {"$in" : objectsIdList}}).toArray(function(err, ingredients) {
 
         if (err) throw err
-    
-        if (ingredient != null) {
-    
-          resListId.push(ingredient);
-    
+
+        if (ingredients != null) {
+
+          res.status(200).send(ingredients)
+
         }
-    
+
       });
       
     });
-
-    client.close();
-
-    res.status(200).send(resListId);
-
-  });
 
 });
 
@@ -432,6 +497,38 @@ app.get('/allergens/getAll', (req, res) => {
         res.status(404).send("Collection allergens is empty!")
   
       }
+    });
+
+  });
+
+});
+
+// Get by ID
+
+app.get('/allergens/getById', (req, res) => {
+
+  allergenId = ObjectId(req.query.id)
+
+  MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
+
+    if (err) throw err
+
+    const db = client.db(mongoDB)
+
+    db.collection('Allergens').findOne({_id: allergenId}, function(err, allergen) {
+
+      if (err) throw err
+  
+      if (allergen != null) {
+  
+        res.status(200).send(allergen)
+  
+      } else {
+
+        res.status(404).send("There is no allergen with that ID")
+  
+      }
+  
     });
 
   });
