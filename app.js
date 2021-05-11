@@ -317,6 +317,42 @@ app.get('/ingredients/getById', (req, res) => {
 
 });
 
+// Get all by id list
+
+app.get('/ingredients/getByListId', (req, res) => {
+
+  ingredientsId = req.body.ingredients
+
+  objectsIdList = []
+
+  for (i = 0; i < ingredientsId.length; i++) {
+
+    objectsIdList.push(ObjectId(ingredientsId[i]))
+    
+  }
+
+  MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
+
+    if (err) throw err
+
+    const db = client.db(mongoDB)
+
+    db.collection('Ingredients').find({"_id" : {"$in" : objectsIdList}}).toArray(function(err, ingredients) {
+
+        if (err) throw err
+
+        if (ingredients != null) {
+
+          res.status(200).send(ingredients)
+
+        }
+
+      });
+      
+    });
+
+});
+
 // CRUD Allergens
 
 // GetAll 
