@@ -264,7 +264,126 @@ app.get('/users/getByEmail', (req, res) => {
   
 });
 
+// Put or quit favourite restaurant
+
+app.get('/users/favourite', (req, res) => {
+
+  userEmail = req.query.email
+  restaurantId = req.query.resId
+
+  MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
+
+    if (err) throw err
+
+    const db = client.db(mongoDB)
+
+    db.collection('Users').findOne({email: userEmail}, {projection:{password:0, dni:0}}, function(error, user) {
+
+      if (error) throw error
+  
+      if (user != null) {
+
+        for (var i = 0; i <= user.favourites.length - 1; i++) {
+
+          if(user.favourites[i] == restaurantId){
+
+            var upUser = user
+
+            upUser.favourites.splice(i, 1)
+
+            var query = {email:user.email}
+
+            console.log(upUser)
+
+            db.collection('Users').updateOne(query, upUser, (error, response) =>{
+
+              if(error){
+                res.status(500).send("ERROR")
+              }
+              res.status(200).json({msg:response.result.nModified})
+
+            });
+
+            client.close();
+
+          }
+
+          if(i >= user.favourites.length - 1 && user.favourites[i] != restaurantId){
+
+            var upUser = user
+
+            upUser.favourites.push(ObjectId(restaurantId))
+
+            console.log(upUser)
+
+            var query = {email:user.email}
+
+            db.collection('Users').updateOne(query, upUser, (error, response) =>{
+
+              if(error){
+                res.status(500).send("ERROR")
+              }
+              //res.status(200).json({msg:response.result.nModified})
+
+            });
+
+            client.close();
+
+          }
+        
+        }
+
+      } else {
+
+        res.status(404).send("No user found")
+  
+      }
+  
+    });
+
+  });
+
+});
+
 // CRUD RESTAURANTS
+
+// Get by code
+
+app.post('/restaurants/getById', (req, res) => {
+
+  restaurantIds = req.body.favourites
+
+  console.log(req.body)  
+
+  objectsIdList = []
+
+  for (i = 0; i < restaurantIds.length; i++) {
+
+    objectsIdList.push(ObjectId(restaurantIds[i]))
+    
+  }
+  
+  MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
+
+    if (err) throw err
+
+    const db = client.db(mongoDB)
+
+    db.collection('Restaurants').find({"_id" : {"$in" : objectsIdList}}).toArray(function(err, favourites) {
+
+      if (err) throw err
+
+      if (favourites != null) {
+
+        res.status(200).send(favourites)
+
+      }
+
+    });
+
+  });
+
+});
 
 // Get by code
 
@@ -399,7 +518,7 @@ app.get('/ingredients/getById', (req, res) => {
 
 // Get all by id list
 
-app.get('/ingredients/getByListId', (req, res) => {
+app.post('/ingredients/getByListId', (req, res) => {
 
   ingredientsId = req.body.ingredients
 
