@@ -188,6 +188,50 @@ app.post('/register/restaurant', (req, res) => {
 
 // CRUD USERS
 
+// Change Password
+
+app.post('/users/changePassword', (req, res) => {
+
+  userEmail = req.body.email
+  password1 = CryptoJS.SHA256(req.body.password1).toString(CryptoJS.enc.Hex)
+  password2 = CryptoJS.SHA256(req.body.password2).toString(CryptoJS.enc.Hex)
+
+  MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
+
+    if (err) throw err
+
+    const db = client.db(mongoDB)
+
+    db.collection('Users').findOne({email: userEmail, password: password1},{projection: {_id: 0, password: 1} }, function(err, user) {
+
+      if (err) throw err
+
+      if (user != null) {
+
+        if (user.password == password1) {
+          
+          db.collection('Users').updateOne({email: userEmail}, { $set: {password: password2} }, function(err, updatedUser) {
+
+            if (err) throw err
+
+            res.status(200).send("Password changed")
+
+          });
+
+        }
+
+      } else {
+
+        res.status(404).send('Invalid credentials')
+
+      }
+
+    });
+
+  });
+  
+});
+
 // GetByEmail
 
 app.get('/users/getByEmail', (req, res) => {
@@ -248,6 +292,42 @@ app.get('/restaurants/getByCode', (req, res) => {
   
       }
   
+    });
+
+  });
+
+});
+
+app.get('/restaurants/getByListId', (req, res) => {
+
+  restaurantId = req.body.favourites
+
+  console.log(req.body)
+
+  objectsIdList = []
+
+  for (i = 0; i < restaurantId.length; i++) {
+
+    objectsIdList.push(ObjectId(restaurantId[i]))
+
+  }
+
+  MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
+
+    if (err) throw err
+
+    const db = client.db(mongoDB)
+
+    db.collection('Restaurants').find({"_id" : {"$in" : objectsIdList}}, {projection: {password:0} }).toArray(function(err, favourites) {
+
+      if (err) throw err
+
+      if (favourites != null) {
+
+        res.status(200).send(favourites)
+
+      }
+
     });
 
   });
