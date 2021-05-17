@@ -32,7 +32,7 @@ app.use((req, res, next) => {
 // ENDPOINTS START
 app.get('/', (req, res) => {
 
-  res.send('API working successful!')
+  res.send('API working successfully!')
 
 })
 
@@ -210,7 +210,7 @@ app.post('/users/changePassword', (req, res) => {
 
         if (user.password == password1) {
           
-          db.collection('Users').updateOne({email: userEmail}, { $set: {password: password2} }, function(err, updatedUser) {
+          db.collection('Users').updateOne({email: userEmail}, { $set: {password: password2} }, function(err) {
 
             if (err) throw err
 
@@ -264,7 +264,7 @@ app.get('/users/getByEmail', (req, res) => {
   
 });
 
-// Put or quit favourite restaurant
+// Add or remove restaurant to favourites list
 
 app.get('/users/favourite', (req, res) => {
 
@@ -340,6 +340,71 @@ app.get('/users/favourite', (req, res) => {
       }
   
     });
+
+  });
+
+});
+
+app.post('/user/setFavourite', (req, res) => {
+
+  userEmail = req.body.email,
+  restaurantId = req.body.restaurantId
+
+  //Checking if its already on the list or not
+
+  MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
+
+    if (err) throw err
+
+    const db = client.db(mongoDB)
+
+    db.collection('Users').findOne({email: userEmail},{projection:{favourites:1}}, function(err, user) {
+
+      if (err) throw err
+
+      if (user != null) {
+
+        newFavourites = user.favourites
+
+        found = false
+
+        for (i = 0; i < newFavourites.length; i++) {
+          
+          if (newFavourites[i] == restaurantId) {
+
+            found = true
+
+            newFavourites.splice(i, 1)
+
+            break
+
+          }
+          
+        } 
+
+        if (!found) {
+
+          newFavourites.push(ObjectId(restaurantId))
+
+        }
+          
+        console.log('Favs = ' + newFavourites)
+
+        db.collection('Users').updateOne({email: userEmail}, { $set: {favourites: newFavourites} }, function(err) {
+
+          if (err) throw err
+    
+          res.status(200).send("Favourites list updated successfully!")
+    
+        });
+
+      } else {
+
+        res.status(404).send('User not found')
+
+      }
+
+    });    
 
   });
 
