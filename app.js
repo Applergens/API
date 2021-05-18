@@ -265,86 +265,6 @@ app.get('/users/getByEmail', (req, res) => {
 });
 
 // Add or remove restaurant to favourites list
-
-app.get('/users/favourite', (req, res) => {
-
-  userEmail = req.query.email
-  restaurantId = req.query.resId
-
-  MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
-
-    if (err) throw err
-
-    const db = client.db(mongoDB)
-
-    db.collection('Users').findOne({email: userEmail}, {projection:{password:0, dni:0}}, function(error, user) {
-
-      if (error) throw error
-  
-      if (user != null) {
-
-        for (var i = 0; i <= user.favourites.length - 1; i++) {
-
-          if(user.favourites[i] == restaurantId){
-
-            var upUser = user
-
-            upUser.favourites.splice(i, 1)
-
-            var query = {email:user.email}
-
-            console.log(upUser)
-
-            db.collection('Users').updateOne(query, upUser, (error, response) =>{
-
-              if(error){
-                res.status(500).send("ERROR")
-              }
-              res.status(200).json({msg:response.result.nModified})
-
-            });
-
-            client.close();
-
-          }
-
-          if(i >= user.favourites.length - 1 && user.favourites[i] != restaurantId){
-
-            var upUser = user
-
-            upUser.favourites.push(ObjectId(restaurantId))
-
-            console.log(upUser)
-
-            var query = {email:user.email}
-
-            db.collection('Users').updateOne(query, upUser, (error, response) =>{
-
-              if(error){
-                res.status(500).send("ERROR")
-              }
-              //res.status(200).json({msg:response.result.nModified})
-
-            });
-
-            client.close();
-
-          }
-        
-        }
-
-      } else {
-
-        res.status(404).send("No user found")
-  
-      }
-  
-    });
-
-  });
-
-});
-
 app.post('/user/setFavourite', (req, res) => {
 
   userEmail = req.body.email,
@@ -394,7 +314,7 @@ app.post('/user/setFavourite', (req, res) => {
 
           if (err) throw err
     
-          res.status(200).send("Favourites list updated successfully!")
+          res.status(200).send(newFavourites)
     
         });
 
