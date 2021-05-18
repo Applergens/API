@@ -439,7 +439,7 @@ app.post('/restaurants/getByListId', (req, res) => {
 app.post('/restaurants/updateData', (req, res) => {
 
   restaurantCode = req.body.code
-  newPassword = CryptoJS.SHA256(req.body.password).toString(CryptoJS.enc.Hex)
+  newPassword = req.body.password
   newPhone = req.body.phone
   newAddress = req.body.address
 
@@ -465,42 +465,56 @@ app.post('/restaurants/updateData', (req, res) => {
 
 app.post('/restaurants/createDish', (req, res) => {
 
-  restaurant = req.body.restaurant
-  dishes = restaurant.dishes
+  restaurantCode = req.body.code
+  newDish = req.body.dish
 
-  ingredientIds = []
+  console.log(newDish.name)
 
-  console.log(req.body.restaurant.dishes[0].ingredients)
-
-  for (i = 0; i < req.body.restaurant.dishes[0].ingredients.length; i++) {
-
-    var id = dishes[0].ingredients[i]
-
-    ingredientIds.push(new ObjectId(id))
-
-  }
-
-  console.log(dishes[0].ingredients)
-
-  dishes[0].ingredients = ingredientIds
-  
   MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
 
     if (err) throw err
 
     const db = client.db(mongoDB)
 
-    var myquery = {"code" : restaurant.code}
+    db.collection('Restaurants').findOne({code: restaurantCode},{projection:{dishes: 1}}, function(err, restData) {
 
-    var newValues = {$push:{dishes:dishes}}
-
-    db.collection('Restaurants').updateOne(myquery, newValues, (err, restaurant) => {
-      
       if (err) throw err
-      
-      res.status(200).send("Dish added successful")
 
-    });
+      if (restData != null) {
+
+        newDishes = restData.dishes
+
+        for (i = 0; i < newDishes.length; i++) {
+
+          console.log(newDishes[i].name)
+
+          if (newDishes[i].name == newDish.name) {
+
+            res.status(400).send("There is already a dish with that name.")
+
+            return
+
+          }
+          
+        }
+
+        newDishes.push(newDish)
+
+        db.collection('Restaurants').updateOne({code: restaurantCode}, { $set: {dishes: newDishes} }, function(err) {
+
+          if (err) throw err
+    
+          res.status(200).send("Dish added successfully!")
+    
+        });
+       
+      } else {
+
+        res.status(400).send("Error finding the restaurant.")
+
+      }
+
+    });   
 
   });
 
@@ -510,7 +524,10 @@ app.post('/restaurants/createDish', (req, res) => {
 
 app.post('/restaurants/deleteDish', (req, res) => {
 
-  restaurant = req.body.restaurant
+  restaurantCode = req.body.code
+  dishName = req.body.name
+
+  console.log('Dish name = ' + dishName)
 
   MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
 
@@ -518,19 +535,109 @@ app.post('/restaurants/deleteDish', (req, res) => {
 
     const db = client.db(mongoDB)
 
-    var myquery = {"code" : restaurant.code}
+    db.collection('Restaurants').findOne({code: restaurantCode},{projection:{dishes: 1}}, function(err, restData) {
 
-    var dishName = req.body.restaurant.dishes[0].name
-
-    var deleteValues = {$pull:{'dishes':{dishName}}}
-
-    db.collection('Restaurants').updateOne(myquery, deleteValues, (err, restaurant) => {
-      
       if (err) throw err
+
+      if (restData != null) {
+
+        found = false
+
+        newDishes = restData.dishes
+
+        for (i = 0; i < newDishes.length; i++) {
+
+          console.log(newDishes[i].name)
+
+          if (newDishes[i].name == dishName) {
+
+            newDishes.splice(i,1)
+
+            found = true
+
+            break
+
+          }
+          
+        }
+
+        if (found) {
+
+          db.collection('Restaurants').updateOne({code: restaurantCode}, { $set: {dishes: newDishes} }, function(err) {
+
+            if (err) throw err
       
-      res.status(200).send("Dish deleted successful")
+            res.status(200).send("Dish removed successfully!")
+      
+          });
+
+        } else {
+
+          res.status(400).send('Dish not found')
+
+        }
+
+      }
 
     });
+
+    
+
+  });
+
+});
+
+// Update dish
+
+app.post('/restaurants/updateDish', (req, res) => {
+
+  restaurantCode = req.body.code
+  newDish = req.body.dish
+  oldDishName = req.body.oldName
+
+  console.log(oldDishName + ' >>> ' + newDish.name)
+
+  MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
+
+    if (err) throw err
+
+    const db = client.db(mongoDB)
+
+    db.collection('Restaurants').findOne({code: restaurantCode},{projection:{dishes: 1}}, function(err, restData) {
+
+      if (err) throw err
+
+      if (restData != null) {
+
+        newDishes = restData.dishes
+
+        for (i = 0; i < newDishes.length; i++) {
+
+          console.log(newDishes[i].name)
+
+          if (newDishes[i].name == oldDishName) {
+
+            newDishes[i] = newDish
+
+          }
+          
+        }
+
+        db.collection('Restaurants').updateOne({code: restaurantCode}, { $set: {dishes: newDishes} }, function(err) {
+
+          if (err) throw err
+    
+          res.status(200).send("Dish updated successfully!")
+    
+        });
+       
+      } else {
+
+        res.status(400).send("Error finding the restaurant.")
+
+      }
+
+    });   
 
   });
 
