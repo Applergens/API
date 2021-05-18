@@ -418,8 +418,6 @@ app.post('/restaurants/getById', (req, res) => {
 
   restaurantIds = req.body.favourites
 
-  console.log(req.body)  
-
   objectsIdList = []
 
   for (i = 0; i < restaurantIds.length; i++) {
@@ -485,8 +483,6 @@ app.get('/restaurants/getByCode', (req, res) => {
 app.get('/restaurants/getByListId', (req, res) => {
 
   restaurantId = req.body.favourites
-
-  console.log(req.body)
 
   objectsIdList = []
 
@@ -556,7 +552,7 @@ app.post('/restaurants/createDish', (req, res) => {
       if (err) throw err
       
       res.status(200).send("Dish added successful")
-    
+
     });
 
   });
@@ -586,7 +582,7 @@ app.post('/restaurants/deleteDish', (req, res) => {
       if (err) throw err
       
       res.status(200).send("Dish deleted successful")
-    
+
     });
 
   });
