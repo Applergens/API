@@ -418,8 +418,6 @@ app.post('/restaurants/getById', (req, res) => {
 
   restaurantIds = req.body.favourites
 
-  console.log(req.body)  
-
   objectsIdList = []
 
   for (i = 0; i < restaurantIds.length; i++) {
@@ -486,8 +484,6 @@ app.get('/restaurants/getByListId', (req, res) => {
 
   restaurantId = req.body.favourites
 
-  console.log(req.body)
-
   objectsIdList = []
 
   for (i = 0; i < restaurantId.length; i++) {
@@ -512,6 +508,81 @@ app.get('/restaurants/getByListId', (req, res) => {
 
       }
 
+    });
+
+  });
+
+});
+
+// Create Dish
+
+app.post('/restaurants/createDish', (req, res) => {
+
+  restaurant = req.body.restaurant
+  dishes = restaurant.dishes
+
+  ingredientIds = []
+
+  console.log(req.body.restaurant.dishes[0].ingredients)
+
+  for (i = 0; i < req.body.restaurant.dishes[0].ingredients.length; i++) {
+
+    var id = dishes[0].ingredients[i]
+
+    ingredientIds.push(new ObjectId(id))
+
+  }
+
+  console.log(dishes[0].ingredients)
+
+  dishes[0].ingredients = ingredientIds
+ 
+  MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
+
+    if (err) throw err
+
+    const db = client.db(mongoDB)
+
+    var myquery = {"code" : restaurant.code}
+
+    var newValues = {$push:{dishes:dishes}}
+
+    db.collection('Restaurants').updateOne(myquery, newValues, (err, restaurant) => {
+     
+      if (err) throw err
+     
+      res.status(200).send("Dish added successful")
+   
+    });
+
+  });
+
+});
+
+// Update Dish
+
+app.post('/restaurants/deleteDish', (req, res) => {
+
+  restaurant = req.body.restaurant
+
+  MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
+
+    if (err) throw err
+
+    const db = client.db(mongoDB)
+
+    var myquery = {"code" : restaurant.code}
+
+    var dishName = req.body.restaurant.dishes[0].name
+
+    var deleteValues = {$pull:{'dishes':{dishName}}}
+
+    db.collection('Restaurants').updateOne(myquery, deleteValues, (err, restaurant) => {
+     
+      if (err) throw err
+     
+      res.status(200).send("Dish deleted successful")
+   
     });
 
   });
