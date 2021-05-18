@@ -400,7 +400,7 @@ app.get('/restaurants/getByCode', (req, res) => {
 
 });
 
-app.get('/restaurants/getByListId', (req, res) => {
+app.post('/restaurants/getByListId', (req, res) => {
 
   restaurantId = req.body.favourites
 
