@@ -434,6 +434,33 @@ app.post('/restaurants/getByListId', (req, res) => {
 
 });
 
+// Update Restaurant Info
+
+app.post('/restaurants/updateData', (req, res) => {
+
+  restaurantCode = req.body.code
+  newPassword = CryptoJS.SHA256(req.body.password).toString(CryptoJS.enc.Hex)
+  newPhone = req.body.phone
+  newAddress = req.body.address
+
+  MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
+
+    if (err) throw err
+
+    const db = client.db(mongoDB)
+
+    db.collection('Restaurants').updateOne({code: restaurantCode}, { $set: {password: newPassword, phone: newPhone, address: newAddress} }, function(err) {
+
+      if (err) throw err
+
+      res.status(200).send("Restaurant updated successfully!")
+
+    });
+
+  });
+
+});
+
 // Create Dish
 
 app.post('/restaurants/createDish', (req, res) => {
