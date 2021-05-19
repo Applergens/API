@@ -116,7 +116,10 @@ app.post('/register/user', (req, res) => {
 
   userData = req.body.user
 
-  userData.favourites = null;
+  userData.favourites = []
+  userData.allergies = []
+
+  console.log(userData)
 
   MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
 
