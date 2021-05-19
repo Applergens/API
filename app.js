@@ -307,8 +307,6 @@ app.post('/user/setFavourite', (req, res) => {
           newFavourites.push(ObjectId(restaurantId))
 
         }
-          
-        console.log('Favs = ' + newFavourites)
 
         db.collection('Users').updateOne({email: userEmail}, { $set: {favourites: newFavourites} }, function(err) {
 
@@ -316,6 +314,52 @@ app.post('/user/setFavourite', (req, res) => {
     
           res.status(200).send(newFavourites)
     
+        });
+
+      } else {
+
+        res.status(404).send('User not found')
+
+      }
+
+    });    
+
+  });
+
+});
+
+// Add or remove allergens
+app.post('/user/setAllergens', (req, res) => {
+
+  userEmail = req.body.email
+  allergensList = req.body.allergens
+  allergensListId = []
+
+  for (i = 0; i < allergensList.length; i++) {
+
+    allergensListId.push(ObjectId(allergensList[i]))
+
+  }
+
+
+  MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
+
+    if (err) throw err
+
+    const db = client.db(mongoDB)
+
+    db.collection('Users').findOne({email: userEmail},function(err, user) {
+
+      if (err) throw err
+
+      if (user != null) {
+
+        db.collection('Users').updateOne({email: userEmail}, { $set: {allergies: allergensListId} }, function(err) {
+
+          if (err) throw err
+   
+          res.status(200).send(allergensListId)
+   
         });
 
       } else {
@@ -468,8 +512,6 @@ app.post('/restaurants/createDish', (req, res) => {
   restaurantCode = req.body.code
   newDish = req.body.dish
 
-  console.log(newDish.name)
-
   MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
 
     if (err) throw err
@@ -485,8 +527,6 @@ app.post('/restaurants/createDish', (req, res) => {
         newDishes = restData.dishes
 
         for (i = 0; i < newDishes.length; i++) {
-
-          console.log(newDishes[i].name)
 
           if (newDishes[i].name == newDish.name) {
 
@@ -527,7 +567,7 @@ app.post('/restaurants/deleteDish', (req, res) => {
   restaurantCode = req.body.code
   dishName = req.body.name
 
-  console.log('Dish name = ' + dishName)
+   g('Dish name = ' + dishName)
 
   MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
 
@@ -547,7 +587,7 @@ app.post('/restaurants/deleteDish', (req, res) => {
 
         for (i = 0; i < newDishes.length; i++) {
 
-          console.log(newDishes[i].name)
+           g(newDishes[i].name)
 
           if (newDishes[i].name == dishName) {
 
@@ -595,8 +635,6 @@ app.post('/restaurants/updateDish', (req, res) => {
   newDish = req.body.dish
   oldDishName = req.body.oldName
 
-  console.log(oldDishName + ' >>> ' + newDish.name)
-
   MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
 
     if (err) throw err
@@ -612,8 +650,6 @@ app.post('/restaurants/updateDish', (req, res) => {
         newDishes = restData.dishes
 
         for (i = 0; i < newDishes.length; i++) {
-
-          console.log(newDishes[i].name)
 
           if (newDishes[i].name == oldDishName) {
 
@@ -804,6 +840,7 @@ app.get('/allergens/getById', (req, res) => {
   });
 
 });
+
 
 app.listen(port, () => {
 
