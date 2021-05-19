@@ -119,8 +119,6 @@ app.post('/register/user', (req, res) => {
   userData.favourites = []
   userData.allergies = []
 
-  console.log(userData)
-
   MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
 
     if (err) throw err
@@ -133,7 +131,7 @@ app.post('/register/user', (req, res) => {
 
       if (user != null) {
 
-        res.status(400).send('There is an user registered already')
+        res.status(400).send('There is an user registered with that email already')
 
       } else {
 
@@ -293,7 +291,7 @@ app.post('/user/setFavourite', (req, res) => {
 
         found = false
 
-        if(newFavourites != null){
+        if (newFavourites != null) {
 
           for (i = 0; i < newFavourites.length; i++) {
           
@@ -308,9 +306,8 @@ app.post('/user/setFavourite', (req, res) => {
             }
             
           }
-        } else {
-          newFavourites = [];
-        }
+
+        } 
 
         if (!found) {
 
@@ -343,14 +340,12 @@ app.post('/user/setAllergens', (req, res) => {
 
   userEmail = req.body.email
   allergensList = req.body.allergens
-  allergensListId = []
 
-  for (i = 0; i < allergensList.length; i++) {
+  if (allergensList == undefined) {
 
-    allergensListId.push(ObjectId(allergensList[i]))
+    allergensList = []
 
   }
-
 
   MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
 
@@ -358,27 +353,13 @@ app.post('/user/setAllergens', (req, res) => {
 
     const db = client.db(mongoDB)
 
-    db.collection('Users').findOne({email: userEmail},function(err, user) {
+    db.collection('Users').updateOne({email: userEmail}, { $set: {allergies: allergensList} }, function(err) {
 
-      if (err) throw err
-
-      if (user != null) {
-
-        db.collection('Users').updateOne({email: userEmail}, { $set: {allergies: allergensListId} }, function(err) {
-
-          if (err) throw err
+        if (err) throw err
    
-          res.status(200).send(allergensListId)
+        res.status(200).send("Allergens updated successfully!")
    
-        });
-
-      } else {
-
-        res.status(404).send('User not found')
-
-      }
-
-    });    
+     });   
 
   });
 
