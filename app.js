@@ -116,6 +116,8 @@ app.post('/register/user', (req, res) => {
 
   userData = req.body.user
 
+  userData.favourites = null;
+
   MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
 
     if (err) throw err
@@ -288,19 +290,24 @@ app.post('/user/setFavourite', (req, res) => {
 
         found = false
 
-        for (i = 0; i < newFavourites.length; i++) {
+        if(newFavourites != null){
+
+          for (i = 0; i < newFavourites.length; i++) {
           
-          if (newFavourites[i] == restaurantId) {
-
-            found = true
-
-            newFavourites.splice(i, 1)
-
-            break
-
+            if (newFavourites[i] == restaurantId) {
+  
+              found = true
+  
+              newFavourites.splice(i, 1)
+  
+              break
+  
+            }
+            
           }
-          
-        } 
+        } else {
+          newFavourites = [];
+        }
 
         if (!found) {
 
