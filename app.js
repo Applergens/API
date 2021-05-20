@@ -577,9 +577,7 @@ app.post('/restaurants/deleteDish', (req, res) => {
         newDishes = restData.dishes
 
         for (i = 0; i < newDishes.length; i++) {
-
-           g(newDishes[i].name)
-
+          
           if (newDishes[i].name == dishName) {
 
             newDishes.splice(i,1)
