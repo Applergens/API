@@ -560,8 +560,6 @@ app.post('/restaurants/deleteDish', (req, res) => {
   restaurantCode = req.body.code
   dishName = req.body.name
 
-   g('Dish name = ' + dishName)
-
   MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
 
     if (err) throw err
