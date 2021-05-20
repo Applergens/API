@@ -51,7 +51,7 @@ app.post('/login/user', (req, res) => {
 
     const db = client.db(mongoDB)
 
-    db.collection('Users').findOne({email: userData.email, password: userData.password}, function(err, user) {
+    db.collection('Users').findOne({email: userData.email, password: userData.password}, {projection: {password: 0} }, function(err, user) {
 
       if (err) throw err
 
@@ -160,6 +160,8 @@ app.post('/register/user', (req, res) => {
 app.post('/register/restaurant', (req, res) => {
 
   restaurantData = req.body.restaurant
+
+  restaurantData.dishes = []
 
   MongoClient.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
 
